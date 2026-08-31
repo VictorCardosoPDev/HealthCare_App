@@ -105,367 +105,396 @@
         },
       }
 
-// =================================================
-// WHO-5
-// =================================================
+    // =================================================
+    // WHO-5 — NAVEGAÇÃO AUTOMÁTICA
+    // =================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
 
-    const who5Inputs = document.querySelectorAll(
-        '#who5Questions input[type="radio"]'
-    );
+        const perguntas =
+            document.querySelectorAll(".who5Question");
 
-    const who5Button = document.getElementById("who5Button");
+        const botaoResultado =
+            document.getElementById("who5Button");
 
-    who5Inputs.forEach(input => {
+        const progressoTexto =
+            document.getElementById("who5ProgressText");
 
-        input.addEventListener("change", () => {
+        const progressoNumero =
+            document.getElementById("who5ProgressNumber");
 
-            const perguntasRespondidas = new Set(
-                [...who5Inputs]
-                    .filter(input => input.checked)
-                    .map(input => input.name)
-            );
+        const progressoBarra =
+            document.getElementById("who5ProgressBar");
 
-            if (perguntasRespondidas.size === 5) {
 
-                who5Button.disabled = false;
+        let perguntaAtual = 0;
 
-                who5Button.classList.remove(
+        function calcularWHO5() {
+
+        let pontuacao = 0;
+
+        for (let i = 1; i <= 5; i++) {
+
+            const resposta =
+                document.querySelector(
+                    `input[name="who5_${i}"]:checked`
+                );
+
+            if (!resposta) {
+                alert("Responda todas as perguntas antes de continuar.");
+                return;
+            }
+
+            pontuacao += Number(resposta.value);
+        }
+
+        const resultado = pontuacao * 4;
+
+        const resultadoBox =
+            document.getElementById("who5Resultado");
+
+        resultadoBox.classList.remove("hidden");
+
+        if (resultado >= 50) {
+
+            resultadoBox.innerHTML = `
+                <h3 class="font-headline-md text-lg mb-2">
+                    Seu resultado
+                </h3>
+
+                <p>
+                    Seu resultado indica um nível de bem-estar que merece
+                    ser acompanhado ao longo do tempo.
+                </p>
+
+                <p class="mt-2 font-semibold">
+                    Pontuação: ${resultado}/100
+                </p>
+            `;
+
+        } else {
+
+            resultadoBox.innerHTML = `
+                <h3 class="font-headline-md text-lg mb-2">
+                    Vamos cuidar de você
+                </h3>
+
+                <p>
+                    Seu resultado sugere que pode ser importante prestar
+                    atenção ao seu bem-estar e considerar buscar apoio.
+                </p>
+
+                <p class="mt-2 font-semibold">
+                    Pontuação: ${resultado}/100
+                </p>
+            `;
+        }
+    }
+
+
+    // Disponibiliza a função para o HTML
+    window.calcularWHO5 = calcularWHO5;
+        // =============================================
+        // MOSTRAR PERGUNTA
+        // =============================================
+
+        function mostrarPergunta(numero) {
+
+            perguntas.forEach((pergunta, index) => {
+
+                pergunta.classList.toggle(
+                    "hidden",
+                    index !== numero
+                );
+
+            });
+
+
+            const numeroPergunta = numero + 1;
+
+            const porcentagem =
+                numeroPergunta * 20;
+
+
+            progressoTexto.textContent =
+                `Pergunta ${numeroPergunta} de 5`;
+
+            progressoNumero.textContent =
+                `${porcentagem}%`;
+
+            progressoBarra.style.width =
+                `${porcentagem}%`;
+
+
+            // =========================================
+            // ÚLTIMA PERGUNTA
+            // =========================================
+
+            if (numero === perguntas.length - 1) {
+
+                botaoResultado.classList.remove("hidden");
+
+                botaoResultado.disabled = true;
+
+                botaoResultado.classList.add(
                     "opacity-50",
                     "cursor-not-allowed"
                 );
 
-                who5Button.classList.add(
-                    "hover:opacity-90"
-                );
+            } else {
+
+                botaoResultado.classList.add("hidden");
+
             }
+
+        }
+
+
+        // =============================================
+        // RESPOSTAS
+        // =============================================
+
+        perguntas.forEach((pergunta, index) => {
+
+            const radios =
+                pergunta.querySelectorAll(
+                    'input[type="radio"]'
+                );
+
+
+            radios.forEach(radio => {
+
+                radio.addEventListener("change", () => {
+
+
+                    // =================================
+                    // SE FOR A ÚLTIMA PERGUNTA
+                    // =================================
+
+                    if (index === perguntas.length - 1) {
+
+                        botaoResultado.disabled = false;
+
+                        botaoResultado.classList.remove(
+                            "opacity-50",
+                            "cursor-not-allowed"
+                        );
+
+                        botaoResultado.classList.add(
+                            "hover:opacity-90"
+                        );
+
+                        return;
+
+                    }
+
+
+                    // =================================
+                    // PASSA AUTOMATICAMENTE
+                    // =================================
+
+                    perguntaAtual++;
+
+                    mostrarPergunta(perguntaAtual);
+
+                });
+
+            });
 
         });
 
+
+        // =============================================
+        // INICIA NA PRIMEIRA PERGUNTA
+        // =============================================
+
+        mostrarPergunta(0);
+
     });
 
-});
+        let currentWarningIndex = 0;
 
-// =================================================
-// CALCULAR WHO-5
-// =================================================
+        function updateWarningCard() {
 
-function calcularWHO5() {
+            const data = warningCards[currentWarningIndex];
 
-    let pontuacao = 0;
+            const card = document.getElementById("warningCard");
+            const image = document.getElementById("warningImage");
+            const overlay = document.getElementById("warningOverlay");
+            const icon = document.getElementById("warningIcon");
+            const title = document.getElementById("warningTitle");
+            const description = document.getElementById("warningDescription");
 
+            image.src = data.image;
 
-    // =============================================
-    // SOMA AS 5 RESPOSTAS
-    // =============================================
+            title.innerText = data.title;
 
-    for (let i = 1; i <= 5; i++) {
+            description.innerText = data.description;
 
-        const resposta =
-            document.querySelector(
-                `input[name="who5_${i}"]:checked`
-            );
+            icon.innerText = data.icon;
 
+            icon.className = `material-symbols-outlined ${data.iconColor} text-[32px]`;
 
-        // Segurança: caso alguma pergunta não tenha sido respondida
-        if (!resposta) {
+            overlay.className = `absolute inset-0 bg-gradient-to-t ${data.overlay} to-transparent`;
 
-            alert(
-                "Responda todas as perguntas antes de continuar."
-            );
-
-            return;
-
+            card.className =
+                `w-full h-[280px] relative overflow-hidden rounded-3xl border ${data.border} ${data.bg} text-left transition-all duration-500`;
         }
 
+        function changeWarningCard(direction) {
 
-        pontuacao += Number(resposta.value);
+        currentWarningIndex += direction;
 
-    }
-
-
-    // =================================================
-    // ELEMENTOS DO RESULTADO
-    // =================================================
-
-    const resultadoBox =
-        document.getElementById("who5Result");
-
-    const resultadoTitle =
-        document.getElementById("who5ResultTitle");
-
-    const resultadoMessage =
-        document.getElementById("who5ResultMessage");
-
-
-    // Mostra o resultado
-    resultadoBox.classList.remove("hidden");
-
-
-    // =================================================
-    // 18 A 25 — BEM-ESTAR PRESERVADO
-    // =================================================
-
-    if (pontuacao >= 18) {
-
-        resultadoTitle.textContent =
-            "Bem-estar preservado";
-
-        resultadoMessage.innerHTML = `
-            Meu bem-estar está em um bom nível. Mas fico atento(a):
-            mesmo quando estou bem, podem surgir sinais de cansaço ou
-            tensão. Observo se há mudanças no sono, na disposição ou na
-            irritabilidade. O cuidado com a saúde emocional é um processo
-            contínuo.
-        `;
-
-    }
-
-
-    // =================================================
-    // 13 A 17 — UM POUCO CANSADO(A)
-    // =================================================
-
-    else if (pontuacao >= 13) {
-
-        resultadoTitle.textContent =
-            "Um pouco cansado(a)";
-
-        resultadoMessage.innerHTML = `
-            Percebo algum cansaço ou tensão, mas ainda consigo lidar bem
-            com as demandas. Posso notar menor disposição, irritabilidade,
-            dificuldade de concentração ou sensação de ter coisas demais
-            para dar conta.
-        `;
-
-    }
-
-
-    // =================================================
-    // 0 A 12 — PRECISO DE APOIO
-    // =================================================
-
-    else {
-
-        resultadoTitle.textContent =
-            "Preciso de apoio";
-
-        resultadoMessage.innerHTML = `
-            O desconforto emocional está mais presente, pode estar
-            interferindo no meu dia e pode ser difícil lidar com este
-            momento sozinho(a). Conversar com alguém ou buscar apoio
-            profissional pode ser necessário.
-        `;
-
-    }
-
-
-    // =================================================
-    // MOSTRA A PONTUAÇÃO
-    // =================================================
-
-    resultadoMessage.innerHTML += `
-        <p class="mt-4 font-semibold">
-            Pontuação: ${pontuacao}/25
-        </p>
-    `;
-
-
-    // =================================================
-    // ROLA ATÉ O RESULTADO
-    // =================================================
-
-    resultadoBox.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-    });
-
-}
-
-    let currentWarningIndex = 0;
-
-    function updateWarningCard() {
-
-        const data = warningCards[currentWarningIndex];
-
-        const card = document.getElementById("warningCard");
-        const image = document.getElementById("warningImage");
-        const overlay = document.getElementById("warningOverlay");
-        const icon = document.getElementById("warningIcon");
-        const title = document.getElementById("warningTitle");
-        const description = document.getElementById("warningDescription");
-
-        image.src = data.image;
-
-        title.innerText = data.title;
-
-        description.innerText = data.description;
-
-        icon.innerText = data.icon;
-
-        icon.className = `material-symbols-outlined ${data.iconColor} text-[32px]`;
-
-        overlay.className = `absolute inset-0 bg-gradient-to-t ${data.overlay} to-transparent`;
-
-        card.className =
-            `w-full h-[280px] relative overflow-hidden rounded-3xl border ${data.border} ${data.bg} text-left transition-all duration-500`;
-    }
-
-    function changeWarningCard(direction) {
-
-    currentWarningIndex += direction;
-
-    if (currentWarningIndex < 0) {
-        currentWarningIndex = warningCards.length - 1;
-    }
-
-    if (currentWarningIndex >= warningCards.length) {
-        currentWarningIndex = 0;
-    }
-
-    updateWarningCard();
-}
-
-function openWarningPage() {
-
-    const card = warningCards[currentWarningIndex];
-
-    window.location.href =
-        `${card.page}?categoria=${encodeURIComponent(card.categoria)}`;
-}
-
-// Carrega o primeiro card imediatamente
-// Aguarda o HTML inteiro carregar antes de inicializar o card
-document.addEventListener("DOMContentLoaded", () => {
-
-    updateWarningCard();
-
-});
-
-
-// Troca automática
-setInterval(() => {
-
-    changeWarningCard(1);
-
-}, 6000);
-
-
-    const careCards = [
-
-        {
-            title: "Pausas Regulares",
-            description: "Realize pausas breves durante a rotina profissional.",
-            image: "../assets/imagens/pausa.png",
-            icon: "self_improvement",
-            iconColor: "text-blue-500",
-            overlay: "from-blue-100/95",
-            border: "border-blue-100",
-            bg: "bg-blue-50",
-            page: "./pages/ajuda.html#pausas"
-        },
-
-        {
-            title: "Hidratação",
-            description: "Mantenha uma rotina adequada de hidratação.",
-            image: "../assets/imagens/hidratacao.png",
-            icon: "water_drop",
-            iconColor: "text-cyan-500",
-            overlay: "from-cyan-100/95",
-            border: "border-cyan-100",
-            bg: "bg-cyan-50",
-            page: "./pages/dicas.html#hidratacao"
-        },
-
-        {
-            title: "Respiração Guiada",
-            description: "Exercícios respiratórios podem auxiliar na redução da tensão.",
-            image: "../assets/imagens/respiracao.png",
-            icon: "air",
-            iconColor: "text-indigo-500",
-            overlay: "from-indigo-100/95",
-            border: "border-indigo-100",
-            bg: "bg-indigo-50",
-            page: "./pages/relaxe.html#respiracao"
-        },
-
-        {
-            title: "Alongamento Breve",
-            description: "Movimentos leves auxiliam no relaxamento corporal.",
-            image: "../assets/imagens/alongamento.png",
-            icon: "accessibility_new",
-            iconColor: "text-green-500",
-            overlay: "from-green-100/95",
-            border: "border-green-100",
-            bg: "bg-green-50",
-            page: "./pages/dicas.html#alongamento"
-        }
-        
-    ];
-
-    let currentCareIndex = 0;
-
-    function updateCareCard() {
-
-        const data = careCards[currentCareIndex];
-
-        const card = document.getElementById("careCard");
-        const image = document.getElementById("careImage");
-        const overlay = document.getElementById("careOverlay");
-        const icon = document.getElementById("careIcon");
-        const title = document.getElementById("careTitle");
-        const description = document.getElementById("careDescription");
-
-        image.src = data.image;
-
-        title.innerText = data.title;
-
-        description.innerText = data.description;
-
-        icon.innerText = data.icon;
-
-        icon.className = `material-symbols-outlined ${data.iconColor} text-[32px]`;
-
-        overlay.className = `absolute inset-0 bg-gradient-to-t ${data.overlay} to-transparent`;
-
-        card.className =
-            `w-full h-[280px] relative overflow-hidden rounded-3xl border ${data.border} ${data.bg} text-left transition-all duration-500`;
-    }
-
-    function changeCareCard(direction) {
-
-        currentCareIndex += direction;
-
-        if (currentCareIndex < 0) {
-            currentCareIndex = careCards.length - 1;
+        if (currentWarningIndex < 0) {
+            currentWarningIndex = warningCards.length - 1;
         }
 
-        if (currentCareIndex >= careCards.length) {
-            currentCareIndex = 0;
+        if (currentWarningIndex >= warningCards.length) {
+            currentWarningIndex = 0;
         }
 
-        updateCareCard();
+        updateWarningCard();
     }
+
+    function openWarningPage() {
+
+        const card = warningCards[currentWarningIndex];
+
+        window.location.href =
+            `${card.page}?categoria=${encodeURIComponent(card.categoria)}`;
+    }
+
     // Carrega o primeiro card imediatamente
     // Aguarda o HTML inteiro carregar antes de inicializar o card
     document.addEventListener("DOMContentLoaded", () => {
 
-        updateCareCard();
+        updateWarningCard();
 
     });
-    function openCarePage() {
 
-        window.location.href = careCards[currentCareIndex].page;
-    }
 
     // Troca automática
     setInterval(() => {
 
-        changeCareCard(1);
+        changeWarningCard(1);
 
     }, 6000);
-    
+
+
+        const careCards = [
+
+            {
+                title: "Pausas Regulares",
+                description: "Realize pausas breves durante a rotina profissional.",
+                image: "../assets/imagens/pausa.png",
+                icon: "self_improvement",
+                iconColor: "text-blue-500",
+                overlay: "from-blue-100/95",
+                border: "border-blue-100",
+                bg: "bg-blue-50",
+                page: "./pages/ajuda.html#pausas"
+            },
+
+            {
+                title: "Hidratação",
+                description: "Mantenha uma rotina adequada de hidratação.",
+                image: "../assets/imagens/hidratacao.png",
+                icon: "water_drop",
+                iconColor: "text-cyan-500",
+                overlay: "from-cyan-100/95",
+                border: "border-cyan-100",
+                bg: "bg-cyan-50",
+                page: "./pages/dicas.html#hidratacao"
+            },
+
+            {
+                title: "Respiração Guiada",
+                description: "Exercícios respiratórios podem auxiliar na redução da tensão.",
+                image: "../assets/imagens/respiracao.png",
+                icon: "air",
+                iconColor: "text-indigo-500",
+                overlay: "from-indigo-100/95",
+                border: "border-indigo-100",
+                bg: "bg-indigo-50",
+                page: "./pages/relaxe.html#respiracao"
+            },
+
+            {
+                title: "Alongamento Breve",
+                description: "Movimentos leves auxiliam no relaxamento corporal.",
+                image: "../assets/imagens/alongamento.png",
+                icon: "accessibility_new",
+                iconColor: "text-green-500",
+                overlay: "from-green-100/95",
+                border: "border-green-100",
+                bg: "bg-green-50",
+                page: "./pages/dicas.html#alongamento"
+            }
+            
+        ];
+
+        let currentCareIndex = 0;
+
+        function updateCareCard() {
+
+            const data = careCards[currentCareIndex];
+
+            const card = document.getElementById("careCard");
+            const image = document.getElementById("careImage");
+            const overlay = document.getElementById("careOverlay");
+            const icon = document.getElementById("careIcon");
+            const title = document.getElementById("careTitle");
+            const description = document.getElementById("careDescription");
+
+            image.src = data.image;
+
+            title.innerText = data.title;
+
+            description.innerText = data.description;
+
+            icon.innerText = data.icon;
+
+            icon.className = `material-symbols-outlined ${data.iconColor} text-[32px]`;
+
+            overlay.className = `absolute inset-0 bg-gradient-to-t ${data.overlay} to-transparent`;
+
+            card.className =
+                `w-full h-[280px] relative overflow-hidden rounded-3xl border ${data.border} ${data.bg} text-left transition-all duration-500`;
+        }
+
+        function changeCareCard(direction) {
+
+            currentCareIndex += direction;
+
+            if (currentCareIndex < 0) {
+                currentCareIndex = careCards.length - 1;
+            }
+
+            if (currentCareIndex >= careCards.length) {
+                currentCareIndex = 0;
+            }
+
+            updateCareCard();
+        }
+        // Carrega o primeiro card imediatamente
+        // Aguarda o HTML inteiro carregar antes de inicializar o card
+        document.addEventListener("DOMContentLoaded", () => {
+
+            updateCareCard();
+
+        });
+        function openCarePage() {
+
+            window.location.href = careCards[currentCareIndex].page;
+        }
+
+        // Troca automática
+        setInterval(() => {
+
+            changeCareCard(1);
+
+        }, 6000);
+        
     </script>
 <style>
       body {
@@ -488,23 +517,54 @@ setInterval(() => {
       }
 
       
-      /* ==========================
-   MODO NOTURNO
-========================== */
+        /* ==========================
+        MODO NOTURNO
+        ========================== */
 
-body.night-mode{
+        body.night-mode{
 
-    background:#0F172A;
+            background:#0F172A;
 
-    color:#E5E7EB;
+            color:#E5E7EB;
 
-}
+        }
 
-body{
+        body{
 
-    transition: filter .35s ease;
+            transition: filter .35s ease;
 
-}
+        }
+        .who5Option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #D0D7E2;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #37474F;
+            background: white;
+        }
+
+        .who5Option:hover {
+            background: #F5F8FF;
+            border-color: #BFD0F5;
+        }
+
+        .who5Option:has(input:checked) {
+            background: #EAF0FF;
+            border-color: #7C9FEF;
+            color: #062F80;
+            font-weight: 600;
+        }
+
+        .who5Radio {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
     </style>
 <style>
     body {
@@ -652,43 +712,44 @@ body{
 </section>
 
 <!-- ================================================= -->
-<!-- WHO-5 - ÍNDICE DE BEM-ESTAR -->
+<!-- WHO-5 - CHECK-IN DE BEM-ESTAR -->
 <!-- ================================================= -->
 
 <section class="mb-stack-lg">
 
-    <div class="relative overflow-hidden
-                bg-surface-container-lowest
-                border border-outline-variant
-                p-5 sm:p-stack-md
-                rounded-xl
-                shadow-sm">
+    <div
+        id="who5Questions"
+        class="relative overflow-hidden
+               bg-surface-container-lowest
+               border border-outline-variant
+               p-5 sm:p-stack-md
+               rounded-xl
+               shadow-sm">
 
 
         <!-- ========================================= -->
-        <!-- TÍTULO E EXPLICAÇÃO -->
+        <!-- CABEÇALHO -->
         <!-- ========================================= -->
 
-        <div class="relative z-10 mb-8">
+        <div class="mb-6">
 
             <h2 class="font-headline-md
                        text-on-surface
                        text-[21px] sm:text-[24px]
                        leading-tight
-                       mb-3">
+                       mb-2">
 
-                Como você está se sentindo agora?
+                Como você está se sentindo?
 
             </h2>
-
 
             <p class="text-body-md
                       text-on-surface-variant
                       text-[15px]
                       leading-relaxed">
 
-                Indique, por favor, para cada uma das cinco afirmações, a que se aproxima mais do modo como se tem sentido nas últimas duas semanas. 
-                Note que os números maiores indicam maior bem-estar.
+                Responda às perguntas pensando em como você se sentiu
+                nas últimas duas semanas.
 
             </p>
 
@@ -696,348 +757,376 @@ body{
 
 
         <!-- ========================================= -->
-        <!-- INSTRUÇÃO WHO-5 -->
+        <!-- PROGRESSO -->
         <!-- ========================================= -->
 
-        <div class="mb-6
-                    p-4
-                    rounded-xl
-                    bg-blue-50
-                    border border-blue-100">
+        <div class="mb-6">
 
-            <p class="text-[#18233A]
-                      text-[15px]
-                      leading-relaxed">
+            <div class="flex items-center justify-between mb-2">
 
-                Indique, para cada afirmação, a opção que mais se
-                aproxima de como você se sentiu nas últimas duas semanas.
+                <span
+                    id="who5ProgressText"
+                    class="text-sm font-semibold text-primary">
 
-                <strong>
-                    Números maiores indicam maior bem-estar.
-                </strong>
+                    Pergunta 1 de 5
 
-            </p>
+                </span>
+
+                <span
+                    id="who5ProgressNumber"
+                    class="text-sm text-on-surface-variant">
+
+                    20%
+
+                </span>
+
+            </div>
+
+
+            <div class="w-full h-2
+                        bg-surface-container
+                        rounded-full
+                        overflow-hidden">
+
+                <div
+                    id="who5ProgressBar"
+                    class="h-full
+                           bg-primary
+                           rounded-full
+                           transition-all duration-300"
+                    style="width: 20%;">
+
+                </div>
+
+            </div>
 
         </div>
 
 
         <!-- ========================================= -->
-        <!-- PERGUNTAS -->
+        <!-- PERGUNTA 1 -->
         <!-- ========================================= -->
 
-        <div id="who5Questions"
-             class="relative z-10 space-y-4">
+        <div
+            class="who5Question"
+            data-question="1">
+
+            <h3 class="font-headline-md
+                       text-on-surface
+                       text-[18px] sm:text-[20px]
+                       leading-tight
+                       mb-5">
+
+                Eu me senti alegre e de bom humor.
+
+            </h3>
 
 
-            <!-- PERGUNTA 1 -->
-
-            <div class="who5-question
-                        p-4 sm:p-5
-                        rounded-xl
-                        border border-outline-variant
-                        bg-white">
-
-                <p class="font-semibold
-                          text-on-surface
-                          text-[15px] sm:text-[16px]
-                          leading-relaxed
-                          mb-4">
-
-                    1. Senti-me alegre e bem-disposto/a
-
-                </p>
+            <div class="space-y-3">
 
 
-                <div class="grid grid-cols-6 gap-1 sm:gap-2">
+                <label class="who5Option">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="5">
-                        <span>5</span>
-                        <small>Todo o tempo</small>
-                    </label>
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="5"
+                        class="who5Radio">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="4">
-                        <span>4</span>
-                        <small>Maior parte</small>
-                    </label>
+                    <span>Todo o tempo</span>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="3">
-                        <span>3</span>
-                        <small>Mais da metade</small>
-                    </label>
-
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="2">
-                        <span>2</span>
-                        <small>Menos da metade</small>
-                    </label>
-
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="1">
-                        <span>1</span>
-                        <small>Algumas vezes</small>
-                    </label>
-
-                    <label class="who5-option">
-                        <input type="radio" name="who5_1" value="0">
-                        <span>0</span>
-                        <small>Nunca</small>
-                    </label>
-
-                </div>
-
-            </div>
+                </label>
 
 
-            <!-- PERGUNTA 2 -->
+                <label class="who5Option">
 
-            <div class="who5-question
-                        p-4 sm:p-5
-                        rounded-xl
-                        border border-outline-variant
-                        bg-white">
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="4"
+                        class="who5Radio">
 
-                <p class="font-semibold
-                          text-on-surface
-                          text-[15px] sm:text-[16px]
-                          leading-relaxed
-                          mb-4">
+                    <span>A maior parte do tempo</span>
 
-                    2. Senti-me calmo/a e tranquilo/a
-
-                </p>
+                </label>
 
 
-                <div class="grid grid-cols-6 gap-1 sm:gap-2">
+                <label class="who5Option">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="5">
-                        <span>5</span>
-                        <small>Todo o tempo</small>
-                    </label>
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="3"
+                        class="who5Radio">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="4">
-                        <span>4</span>
-                        <small>Maior parte</small>
-                    </label>
+                    <span>Mais da metade do tempo</span>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="3">
-                        <span>3</span>
-                        <small>Mais da metade</small>
-                    </label>
+                </label>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="2">
-                        <span>2</span>
-                        <small>Menos da metade</small>
-                    </label>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="1">
-                        <span>1</span>
-                        <small>Algumas vezes</small>
-                    </label>
+                <label class="who5Option">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_2" value="0">
-                        <span>0</span>
-                        <small>Nunca</small>
-                    </label>
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="2"
+                        class="who5Radio">
 
-                </div>
+                    <span>Menos da metade do tempo</span>
+
+                </label>
+
+
+                <label class="who5Option">
+
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="1"
+                        class="who5Radio">
+
+                    <span>Algumas vezes</span>
+
+                </label>
+
+
+                <label class="who5Option">
+
+                    <input
+                        type="radio"
+                        name="who5_1"
+                        value="0"
+                        class="who5Radio">
+
+                    <span>Nunca</span>
+
+                </label>
 
             </div>
 
-
-            <!-- PERGUNTA 3 -->
-
-            <div class="who5-question
-                        p-4 sm:p-5
-                        rounded-xl
-                        border border-outline-variant
-                        bg-white">
-
-                <p class="font-semibold
-                          text-on-surface
-                          text-[15px] sm:text-[16px]
-                          leading-relaxed
-                          mb-4">
-
-                    3. Senti-me activo/a e enérgico/a
-
-                </p>
+        </div>
 
 
-                <div class="grid grid-cols-6 gap-1 sm:gap-2">
+        <!-- ========================================= -->
+        <!-- PERGUNTA 2 -->
+        <!-- ========================================= -->
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="5">
-                        <span>5</span>
-                        <small>Todo o tempo</small>
-                    </label>
+        <div
+            class="who5Question hidden"
+            data-question="2">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="4">
-                        <span>4</span>
-                        <small>Maior parte</small>
-                    </label>
+            <h3 class="font-headline-md
+                       text-on-surface
+                       text-[18px] sm:text-[20px]
+                       leading-tight
+                       mb-5">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="3">
-                        <span>3</span>
-                        <small>Mais da metade</small>
-                    </label>
+                Eu me senti calmo e relaxado.
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="2">
-                        <span>2</span>
-                        <small>Menos da metade</small>
-                    </label>
+            </h3>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="1">
-                        <span>1</span>
-                        <small>Algumas vezes</small>
-                    </label>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_3" value="0">
-                        <span>0</span>
-                        <small>Nunca</small>
-                    </label>
+            <div class="space-y-3">
 
-                </div>
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="5" class="who5Radio">
+                    <span>Todo o tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="4" class="who5Radio">
+                    <span>A maior parte do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="3" class="who5Radio">
+                    <span>Mais da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="2" class="who5Radio">
+                    <span>Menos da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="1" class="who5Radio">
+                    <span>Algumas vezes</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_2" value="0" class="who5Radio">
+                    <span>Nunca</span>
+                </label>
 
             </div>
 
-
-            <!-- PERGUNTA 4 -->
-
-            <div class="who5-question
-                        p-4 sm:p-5
-                        rounded-xl
-                        border border-outline-variant
-                        bg-white">
-
-                <p class="font-semibold
-                          text-on-surface
-                          text-[15px] sm:text-[16px]
-                          leading-relaxed
-                          mb-4">
-
-                    4. Acordei a sentir-me fresco/a e repousado/a
-
-                </p>
+        </div>
 
 
-                <div class="grid grid-cols-6 gap-1 sm:gap-2">
+        <!-- ========================================= -->
+        <!-- PERGUNTA 3 -->
+        <!-- ========================================= -->
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="5">
-                        <span>5</span>
-                        <small>Todo o tempo</small>
-                    </label>
+        <div
+            class="who5Question hidden"
+            data-question="3">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="4">
-                        <span>4</span>
-                        <small>Maior parte</small>
-                    </label>
+            <h3 class="font-headline-md
+                       text-on-surface
+                       text-[18px] sm:text-[20px]
+                       leading-tight
+                       mb-5">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="3">
-                        <span>3</span>
-                        <small>Mais da metade</small>
-                    </label>
+                Eu me senti ativo e vigoroso.
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="2">
-                        <span>2</span>
-                        <small>Menos da metade</small>
-                    </label>
+            </h3>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="1">
-                        <span>1</span>
-                        <small>Algumas vezes</small>
-                    </label>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_4" value="0">
-                        <span>0</span>
-                        <small>Nunca</small>
-                    </label>
+            <div class="space-y-3">
 
-                </div>
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="5" class="who5Radio">
+                    <span>Todo o tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="4" class="who5Radio">
+                    <span>A maior parte do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="3" class="who5Radio">
+                    <span>Mais da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="2" class="who5Radio">
+                    <span>Menos da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="1" class="who5Radio">
+                    <span>Algumas vezes</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_3" value="0" class="who5Radio">
+                    <span>Nunca</span>
+                </label>
 
             </div>
 
-
-            <!-- PERGUNTA 5 -->
-
-            <div class="who5-question
-                        p-4 sm:p-5
-                        rounded-xl
-                        border border-outline-variant
-                        bg-white">
-
-                <p class="font-semibold
-                          text-on-surface
-                          text-[15px] sm:text-[16px]
-                          leading-relaxed
-                          mb-4">
-
-                    5. O meu dia-a-dia tem sido preenchido com coisas que me interessam
-
-                </p>
+        </div>
 
 
-                <div class="grid grid-cols-6 gap-1 sm:gap-2">
+        <!-- ========================================= -->
+        <!-- PERGUNTA 4 -->
+        <!-- ========================================= -->
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="5">
-                        <span>5</span>
-                        <small>Todo o tempo</small>
-                    </label>
+        <div
+            class="who5Question hidden"
+            data-question="4">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="4">
-                        <span>4</span>
-                        <small>Maior parte</small>
-                    </label>
+            <h3 class="font-headline-md
+                       text-on-surface
+                       text-[18px] sm:text-[20px]
+                       leading-tight
+                       mb-5">
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="3">
-                        <span>3</span>
-                        <small>Mais da metade</small>
-                    </label>
+                Eu acordei me sentindo descansado e renovado.
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="2">
-                        <span>2</span>
-                        <small>Menos da metade</small>
-                    </label>
+            </h3>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="1">
-                        <span>1</span>
-                        <small>Algumas vezes</small>
-                    </label>
 
-                    <label class="who5-option">
-                        <input type="radio" name="who5_5" value="0">
-                        <span>0</span>
-                        <small>Nunca</small>
-                    </label>
+            <div class="space-y-3">
 
-                </div>
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="5" class="who5Radio">
+                    <span>Todo o tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="4" class="who5Radio">
+                    <span>A maior parte do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="3" class="who5Radio">
+                    <span>Mais da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="2" class="who5Radio">
+                    <span>Menos da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="1" class="who5Radio">
+                    <span>Algumas vezes</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_4" value="0" class="who5Radio">
+                    <span>Nunca</span>
+                </label>
 
             </div>
 
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- PERGUNTA 5 -->
+        <!-- ========================================= -->
+
+        <div
+            class="who5Question hidden"
+            data-question="5">
+
+            <h3 class="font-headline-md
+                       text-on-surface
+                       text-[18px] sm:text-[20px]
+                       leading-tight
+                       mb-5">
+
+                Meu dia a dia tem sido preenchido com coisas que me interessam.
+
+            </h3>
+
+
+            <div class="space-y-3">
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="5" class="who5Radio">
+                    <span>Todo o tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="4" class="who5Radio">
+                    <span>A maior parte do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="3" class="who5Radio">
+                    <span>Mais da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="2" class="who5Radio">
+                    <span>Menos da metade do tempo</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="1" class="who5Radio">
+                    <span>Algumas vezes</span>
+                </label>
+
+                <label class="who5Option">
+                    <input type="radio" name="who5_5" value="0" class="who5Radio">
+                    <span>Nunca</span>
+                </label>
+
+            </div>
 
         </div>
 
@@ -1046,58 +1135,66 @@ body{
         <!-- BOTÃO -->
         <!-- ========================================= -->
 
-        <button
-            id="who5Button"
-            type="button"
-            onclick="calcularWHO5()"
-            disabled
-            class="w-full
-                px-6 py-3
-                rounded-xl
-                bg-primary
-                text-on-primary
-                opacity-50
-                cursor-not-allowed
-                transition-all duration-300">
-
-            Ver meu resultado
-
-        </button>
+        <div class="mt-7 flex justify-end">
 
 
-        <!-- ========================================= -->
-        <!-- RESULTADO -->
-        <!-- ========================================= -->
 
-        <div
-            id="who5Result"
-            class="hidden
-                   relative z-10
-                   mt-6
-                   p-5
-                   rounded-xl
-                   bg-blue-50
-                   border border-blue-100">
+            <!-- Botão final -->
+            <button
+                id="who5Button"
+                type="button"
+                onclick="calcularWHO5()"
+                class="hidden
+                       w-full sm:w-auto
+                       px-6 py-3
+                       rounded-xl
+                       bg-primary
+                       text-on-primary
+                       hover:opacity-90
+                       transition-all duration-300">
 
-            <p
-                id="who5ResultTitle"
-                class="font-headline-md
-                       text-on-surface
-                       text-[20px]
-                       mb-2">
+                Ver meu resultado
 
-            </p>
+            </button>
+            <!-- RESULTADO -->
+            <div
+                id="who5Resultado"
+                class="hidden mt-6 p-5 rounded-xl
+                    bg-surface-container-low
+                    border border-outline-variant">
 
-            <p
-                id="who5ResultMessage"
-                class="text-body-md
-                       text-on-surface-variant
-                       leading-relaxed">
-
-            </p>
-
+            </div>
         </div>
 
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- RESULTADO -->
+    <!-- ========================================= -->
+
+    <div
+        id="who5Resulto"
+        class="hidden mt-5
+               p-6
+               rounded-xl
+               bg-surface-container-lowest
+               border border-outline-variant">
+
+        <h3
+            id="who5ResultTitle"
+            class="font-headline-md
+                   text-on-surface
+                   text-xl
+                   mb-3">
+        </h3>
+
+        <div
+            id="who5ResultMessage"
+            class="text-body-md
+                   text-on-surface-variant
+                   leading-relaxed">
+        </div>
 
     </div>
 

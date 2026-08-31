@@ -195,56 +195,53 @@ function startTechnique(type) {
         };
     }
 
-    if (type === "kumbhaka") {
+        if (type === "kumbhaka") {
 
-        title = "Kumbhaka";
+            title = "Expiração Prolongada";
 
-        phases = [
+            phases = [
 
-            { text: "Inspire", seconds: 4, scale: "scale-125" },
+                { text: "Inspire", seconds: 4, scale: "scale-100" },
 
-            { text: "Segure", seconds: 16, scale: "scale-125" },
+                { text: "Expire", seconds: 8, scale: "scale-125" }
 
-            { text: "Expire", seconds: 8, scale: "scale-100" }
+            ];
 
-        ];
+            images = {
 
-        images = {
+                "Inspire": "../assets/imagens/inspire.png",
 
-            "Inspire": "../assets/imagens/kumbhaka-inspire.png",
+                "Expire": "../assets/imagens/expire.png"
 
-            "Segure": "../assets/imagens/kumbhaka-segure.png",
-
-            "Expire": "../assets/imagens/kumbhaka-expire.png"
-
-        };
+            };
     }
 
     if (type === "narinas") {
 
-        title = "Narinas Alternadas";
+    title = "Respiração Quadrada";
 
-        phases = [
+    phases = [
 
-            { text: "Narina Esquerda", seconds: 4, scale: "scale-125" },
+        { text: "Inspire", seconds: 4, scale: "scale-125" },
 
-            { text: "Segure", seconds: 4, scale: "scale-125" },
+        { text: "Segure", seconds: 4, scale: "scale-125" },
 
-            { text: "Narina Direita", seconds: 4, scale: "scale-100" }
+        { text: "Expire", seconds: 4, scale: "scale-100" },
 
-        ];
+        { text: "Segure", seconds: 4, scale: "scale-100" }
 
-        images = {
+    ];
 
-            "Narina Esquerda": "../assets/imagens/narina-esquerda.png",
+    images = {
 
-            "Segure": "../assets/imagens/narina-segure.png",
+        "Inspire": "../assets/imagens/inspire.png",
 
-            "Narina Direita": "../assets/imagens/narina-direita.png"
+        "Segure": "../assets/imagens/segure.png",
 
-        };
-    }
+        "Expire": "../assets/imagens/expire.png"
 
+    };
+}
     document
         .getElementById("exerciseTitle")
         .innerText = title;
@@ -414,57 +411,72 @@ function openTechniqueInfo(type) {
 
     if (type === "narinas") {
 
-        image.src =
-            "../assets/imagens/narina-capa.png";
+    image.src =
+        "../assets/imagens/inspire.png";
 
-        title.innerText =
-            "Narinas Alternadas";
+    title.innerText =
+        "Respiração Quadrada";
 
-        benefits.innerHTML = `
-            <p>Uma prática simples que pode ajudar a desacelerar a respiração e reduzir a tensão.</p><br>
-            <strong>Benefícios</strong><br>
-            • Melhora concentração<br>
-            • Promove equilíbrio emocional<br>
-            • Reduz tensão mental
-        `;
+    benefits.innerHTML = `
+        <p>
+            Uma técnica que utiliza ciclos regulares de inspiração,
+            pausa, expiração e pausa para favorecer a concentração
+            e a regulação.
+        </p>
 
-        steps.innerHTML = `
-            <strong>Como fazer:</strong><br><br>
+        <br>
 
-            1. Feche uma narina.<br>
-            2. Inspire pela outra.<br>
-            3. Segure o ar.<br>
-            4. Alterne as narinas.
-        `;
-    }
+        <strong>Como funciona</strong><br>
 
+        • Inspire por 4 segundos<br>
+        • Segure por 4 segundos<br>
+        • Expire por 4 segundos<br>
+        • Segure por 4 segundos
+    `;
+
+    steps.innerHTML = `
+        <strong>Como fazer:</strong><br><br>
+
+        1. Inspire lentamente pelo nariz por 4 segundos.<br>
+        2. Segure o ar por 4 segundos.<br>
+        3. Expire lentamente por 4 segundos.<br>
+        4. Permaneça sem respirar por 4 segundos.<br>
+        5. Repita o ciclo no seu ritmo.
+    `;
+}
     if (type === "kumbhaka") {
 
-        image.src =
-            "../assets/imagens/kumbhaka-capa.png";
+            image.src =
+                "../assets/imagens/expire.png";
 
-        title.innerText =
-            "Kumbhaka";
+            title.innerText =
+                "Expiração Prolongada";
 
-        benefits.innerHTML = `
-            <strong>Benefícios</strong><br>
-            • Aumenta foco<br>
-            • Desenvolve autocontrole<br>
-            • Relaxamento profundo<br>
-            • Proporciona tranquilização do sistema
-                nervoso e da frequência cardíaca, além
-                de proporcionar calma e
-                harmonização consigo mesmo.
-        `;
+            benefits.innerHTML = `
+                <p>
+                    Uma prática que enfatiza uma expiração mais lenta
+                    e confortável, ajudando a desacelerar o ritmo da
+                    respiração.
+                </p>
 
-        steps.innerHTML = `
-            <strong>Como fazer:</strong><br><br>
+                <br>
 
-            1. Inspire profundamente.<br>
-            2. Retenha o ar.<br>
-            3. Expire lentamente.
-        `;
-    }
+                <strong>Benefícios</strong><br>
+
+                • Favorece o relaxamento<br>
+                • Ajuda a desacelerar a respiração<br>
+                • Pode contribuir para reduzir a tensão
+            `;
+
+            steps.innerHTML = `
+                <strong>Como fazer:</strong><br><br>
+
+                1. Inspire lentamente pelo nariz por 4 segundos.<br>
+                2. Expire de forma lenta e confortável por 8 segundos.<br>
+                3. Repita o ciclo no seu ritmo.<br>
+                4. Se sentir desconforto, interrompa a prática.
+            `;
+        }
 
     button.onclick = () => {
 
@@ -576,13 +588,13 @@ function showFeedbackResult(type) {
     else if (currentTechnique === "narinas") {
 
         recommendationTitle =
-            "Kumbhaka";
+            "Expiração Prolongada";
 
         recommendationText =
             "A retenção consciente da respiração pode ajudar a aumentar o foco e promover relaxamento.";
 
         recommendationButton =
-            "Iniciar Kumbhaka";
+            "Iniciar Expiração Prolongada";
     }
 
     else if (currentTechnique === "kumbhaka") {
@@ -880,44 +892,39 @@ stars.forEach(star=>{
 
 </div>
 
-            <!-- Narinas Alternadas -->
-            <button
-                onclick="openTechniqueInfo('narinas')"
-                class="text-left p-4 rounded-2xl border border-surface-container-high hover:bg-surface-container-low transition-all">
+            <!-- Respiração Quadrada -->
+                <button
+                    onclick="openTechniqueInfo('narinas')"
+                    class="text-left p-4 rounded-2xl border border-surface-container-high hover:bg-surface-container-low transition-all">
 
-                <h3 class="font-semibold text-primary">
+                    <h3 class="font-semibold text-primary">
+                        🌬️ Respiração Quadrada
+                    </h3>
 
-                    🌬️ Narinas Alternadas
+                    <p class="text-sm text-on-surface-variant mt-1">
+                        Concentração e regulação
+                    </p>
 
-                </h3>
+                </button>
 
-                <p class="text-sm text-on-surface-variant mt-1">
+            <!-- Expiração Prolongada -->
+                <button
+                    onclick="openTechniqueInfo('kumbhaka')"
+                    class="text-left p-4 rounded-2xl border border-surface-container-high hover:bg-surface-container-low transition-all">
 
-                    Equilíbrio e concentração
+                    <h3 class="font-semibold text-primary">
 
-                </p>
+                        🌬️ Expiração Prolongada
 
-            </button>
+                    </h3>
 
-            <!-- Kumbhaka -->
-            <button
-                onclick="openTechniqueInfo('kumbhaka')"
-                class="text-left p-4 rounded-2xl border border-surface-container-high hover:bg-surface-container-low transition-all">
+                    <p class="text-sm text-on-surface-variant mt-1">
 
-                <h3 class="font-semibold text-primary">
+                        Inspire 4 • Expire 8
 
-                    🧘 Kumbhaka
+                    </p>
 
-                </h3>
-
-                <p class="text-sm text-on-surface-variant mt-1">
-
-                    Inspira 4 • Segura 16 • Expira 8
-
-                </p>
-
-            </button>
-
+                </button>
         </div>
 
     </div>
